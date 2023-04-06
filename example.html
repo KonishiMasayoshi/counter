@@ -11,10 +11,37 @@
 <!-- plugin -->
 <link rel="stylesheet" href="./plugin/default.css">
 <style>
+.wrapper{
+	width:1000px;
+	margin:0 auto;
+	text-align:left;
+}
+
+#counter0_parent{
+	margin-bottom:50px;
+}
+
+.description{
+	margin-bottom:10px;
+	font-size:16px;
+	line-height:22px;
+}
 </style>
 </head>
 <body>
-	<div class="counter" id="counter"></div>
+	<section class="wrapper" id="counter0_parent">
+		<p class="description">
+			数字を画像で表示させております。<br>
+			画像ファイルは最初にキャッシュで保持しレンダリングの度にサーバーへリクエストしないようにしております。
+		</p>
+		<div class="counter" id="counter0"></div>
+	</section>
+	<section class="wrapper" id="counter1_parent">
+		<p class="description">
+			テキストのみで表示させております。
+		</p>
+		<div class="counter" id="counter1"></div>
+	</section>
 	<!-- lib/jquery -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	
@@ -25,24 +52,32 @@
 (function($){
 	$(document).ready(function(){
 		const 
-		configs = {
-			setTime:300, 
-			finishTime:'2026/3/11 1:59:59', 
-			number:{
-				0:'img/0.png', 
-				1:'img/1.png', 
-				2:'img/2.png', 
-				3:'img/3.png', 
-				4:'img/4.png', 
-				5:'img/5.png', 
-				6:'img/6.png', 
-				7:'img/7.png', 
-				8:'img/8.png', 
-				9:'img/9.png' 
+		configs = [
+			{
+				setTime:200, 
+				finishTime:'2026/3/11 1:59:59', 
+				number:{
+					0:'img/0.svg', 
+					1:'img/1.svg', 
+					2:'img/2.svg', 
+					3:'img/3.svg', 
+					4:'img/4.svg', 
+					5:'img/5.svg', 
+					6:'img/6.svg', 
+					7:'img/7.svg', 
+					8:'img/8.svg', 
+					9:'img/9.svg' 
+				}, 
+				counterTemplate:'{day}日{hour}時間{minute}分{second}秒{micro_second}' 
 			}, 
-			counterTemplate:'{hour}<img src="img/coron.png" class="counter_coron">{minute}<img src="img/coron.png" class="counter_coron">{second}<span class="counter_micro_second_parent">{micro_second}</span>' 
-		};
-		$('#counter').counter(configs);
+			{
+				setTime:200, 
+				finishTime:'2026/3/11 1:59:59', 
+				counterTemplate:'{day}日{hour}時間{minute}分{second}秒{micro_second}' 
+			} 
+		];
+		$('#counter0').counter(configs[0]);
+		$('#counter1').counter(configs[1]);
 	});
 })(jQuery);
 	</script>

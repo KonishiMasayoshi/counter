@@ -1,0 +1,26 @@
+@charset "utf-8";
+
+/*----------------------------- counter -----------------------------*/
+.counter{
+	color:#74fc44;
+	font-size:22px;
+	white-space:nowrap;
+}
+
+.counter span{
+	color:#74fc44;
+	font-size:40px;
+}
+
+.counter img{
+	width:60px;
+}
+
+.counter_micro_second img{
+	width:40px;
+}
+
+.counter_micro_second{
+	font-size:20px;
+}
+/*----------------------------- /counter -----------------------------*/

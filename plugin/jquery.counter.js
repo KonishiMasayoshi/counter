@@ -1,7 +1,8 @@
 /*----------------------------- counter -----------------------------*/
 (function($){
-	var 
+	const 
 	defaults = {
+		namespace:'counter_', 
 		finishTime:'1970/1/1 00:00:00', 
 		counterTemplate:'{day}日{hour}時間{minute}分{second}秒{micro_second}', 
 		numberFormat:true, 
@@ -17,12 +18,12 @@
 			8:'8', 
 			9:'9' 
 		}, 
-		setTime:111, 
-		//callback
-		funcTimeHalfwayCallback:function(el, timeLimit){
-			el.flagFuncTimeHalfwayCallback = false;
+		setTime:1000, 
+		funcCallbackError:(el) => {
+			console.log('plugin counter img load error');
+			//el.html('エラーが発生しました。');
 		}, 
-		funcFinishCallback:function(el){
+		funcCallbackFinish:(el) => {
 			el.html('終了致しました。');
 		} 
 	}, 
@@ -32,60 +33,111 @@
 		'minute', 
 		'second', 
 		'micro_second' 
-	];
+	], 
+	selectorRule = {
+		id:'#', 
+		class:'.' 
+	};
 	$.fn.counter = function(options){
-		var 
+		let 
 		el = this, 
 		lenEl = el.length;
-		if(lenEl === 0)return this;
+		if(lenEl === 0)
+		return this;
 		if(lenEl > 1){
-			el.each(function(){$(this).counter(options)});
+			el.each(function(){
+				$(this).counter(options);
+			});
 			return this;
 		}
-		var 
+		let 
+		configs = {}, 
 		timeFinish, 
 		imgChach = {}, 
-		funcInit = function(){
-			el.configs = $.extend({}, defaults, options);
-			timeFinish = Date.parse(el.configs.finishTime.replace(/-/g, '/'));
-			for(var i = 0, l = timeList.length;i < l;i++)
-			el.configs.counterTemplate = el.configs.counterTemplate.replace('{' + timeList[i] + '}', '<span class="' + timeList[i] + '"></span>');
-			el.html(el.configs.counterTemplate);
-			el.funcLoadImg(0, function(){
-				el.funcExecute();
-			});
-		};
-		el.configs = {};
-		el.setTime;
-		el.flagFuncTimeHalfwayCallback = true;
-		el.funcLoadImg = function(index, callback){
-			if(el.configs.number[index].match(/[.jpg|.gif]|.png]$/)){
-				var 
-				eleImg = $('<img>');
-				eleImg.on({
-					'load':function(){
-						imgChach[index] = $(this);
+		funcInit = () => {
+			configs = $.extend(
+				{}, 
+				defaults, 
+				options 
+			);
+			timeFinish = Date.parse(configs.finishTime);
+			for(var i = 0, l = timeList.length;i < l;++i)
+			configs.counterTemplate = configs.counterTemplate.replace(
+				'{' + timeList[i] + '}', 
+				'<span class="' + configs.namespace + timeList[i] + '"></span>' 
+			);
+			el.html(configs.counterTemplate);
+			const 
+			numberLength = funcGetNumberLength();
+			funcLoadImg(
+				0, 
+				numberLength, 
+				funcExecute 
+			);
+		}, 
+		funcDestructor = () => {
+			lenEl = 
+			funcInit = 
+			funcGetNumberLength = 
+			funcLoadImg = 
+			funcDestructor = void 0;
+		}, 
+		funcGetNumberLength = () => {
+			let 
+			timeNow = parseInt(new Date() * 1), 
+			timeLimit = timeFinish - timeNow, 
+			timeRemaining = funcGetRemainingTime(timeLimit), 
+			conut = 0;
+			for(var key in timeRemaining)
+			conut += timeRemaining[key].length;
+			return conut;
+		}, 
+		funcLoadImg = (
+			index, 
+			numberLength, 
+			callback 
+		) => {
+			if(configs.number[index].match(/[.jpg|.gif]|.png|.svg]$/)){
+				imgChach[index] = [];
+				for(var i = 0;i < numberLength;++i){
+					imgChach[index][i] = $('<img>');
+					imgChach[index][i].attr(
+						'src', 
+						configs.number[index] 
+					);
+				}
+				imgChach[index][0].on({
+					'load':() => {
 						if(index === 9){
+							funcDestructor();
 							callback();
 						}else{
-							el.funcLoadImg(index + 1, callback);
+							funcLoadImg(
+								index + 1, 
+								numberLength, 
+								callback 
+							);
 						}
 					}, 
-					'error':function(){
-						console.log('plugin counter img load error');
+					'error':() => {
+						configs.funcCallbackError(el);
 					} 
 				});
-				eleImg.attr('src', el.configs.number[index]);
-			}else{
-				if(index === 9){
-					callback();
-				}else{
-					el.funcLoadImg(index + 1, callback);
-				}
+				return false;
 			}
+			if(index === 9){
+				funcDestructor();
+				callback();
+				return false;
+			}
+			funcLoadImg(
+				index + 1, 
+				numberLength, 
+				callback 
+			);
 		}, 
-		el.funcGetRemainingTime = function(time){
-			var 
+		funcGetRemainingTime = (time) => {
+			let 
 			day = Math.floor(time / 86400 / 1000) + '', 
 			hour = Math.floor((time / 3600 / 1000) % 24) + '', 
 			minute = Math.floor((time / 60 / 1000) % 60) + '', 
@@ -95,22 +147,22 @@
 			lenMinute = minute.length, 
 			lenSecond = second.length, 
 			lenMicroSecond = microSecond.length;
-			if(el.configs.numberFormat){
+			if(configs.numberFormat){
 				if(lenHour < 2){
-					for(var i = 0, l = 2 - lenHour;i < l;i++)
+					for(var i = 0, l = 2 - lenHour;i < l;++i)
 					hour = '0' + hour;
 				}
 				if(lenMinute < 2){
-					for(var i = 0, l = 2 - lenMinute;i < l;i++)
+					for(var i = 0, l = 2 - lenMinute;i < l;++i)
 					minute = '0' + minute;
 				}
 				if(lenSecond < 2){
-					for(var i = 0, l = 2 - lenSecond;i < l;i++)
+					for(var i = 0, l = 2 - lenSecond;i < l;++i)
 					second = '0' + second;
 				}
 			}
 			if(lenMicroSecond < 3){
-				for(var i = 0, l = 3 - lenMicroSecond;i < l;i++)
+				for(var i = 0, l = 3 - lenMicroSecond;i < l;++i)
 				microSecond = '0' + microSecond;
 			}
 			microSecond = microSecond.slice(0, 2);
@@ -122,51 +174,56 @@
 				'micro_second':microSecond 
 			};
 		}, 
-		el.funcPutTime = function(time){
-			var 
-			keepTime = 0;
+		funcPutTime = (time) => {
+			let 
+			tempTime = 0, 
+			countNumberLength = 0;
 			for(var key in time){
-				eleTime = $('.' + key, el).eq(0);
+				eleTime = $(selectorRule.class + configs.namespace + key, el).eq(0);
 				if(!eleTime[0]){
-					keepTime = (key === 'day'?keepTime * 0:key === 'second'?keepTime * 10:keepTime * 60) + parseInt(time[key]) * (key === 'day'?24:key === 'second'?10:60);
+					tempTime = (key === 'day'?tempTime * 0:key === 'second'?tempTime * 10:tempTime * 60) + parseInt(time[key]) * (key === 'day'?24:key === 'second'?10:60);
 					continue;
 				}
 				eleTime.empty();
-				if(keepTime !== 0)
-				time[key] = (parseInt(time[key]) + keepTime) + '';
-				for(var i = 0, l = time[key].length;i < l;i++){
-					var 
-					number = time[key].substr(i, 1);
-					if(typeof imgChach[number] === 'object'){
-						eleTime.append(imgChach[number].clone());
+				if(tempTime !== 0)
+				time[key] = (parseInt(time[key]) + tempTime) + '';
+				for(var i = 0, l = time[key].length;i < l;++i){
+					let 
+					number = time[key].substr(
+						i, 
+						1 
+					);
+					if(
+						typeof imgChach[number] === 'object' && 
+						typeof imgChach[number][countNumberLength] === 'object' 
+					){
+						eleTime.append(imgChach[number][countNumberLength]);
+						++countNumberLength;
 					}else{
-						eleTime.append('<span class="counter_num">' + el.configs.number[number] + '</span>');
+						eleTime.append('<span class="' + configs.namespace + 'num">' + configs.number[number] + '</span>');
 					}
 				}
-				keepTime = 0;
+				tempTime = 0;
 			}
 		}, 
-		el.funcExecute = function(){
-			var 
+		funcExecute = () => {
+			let 
 			timeNow = parseInt(new Date() * 1);
 			if(timeFinish <= timeNow){
-				el.configs.funcFinishCallback(el);
+				configs.funcCallbackFinish(el);
 				return true;
 			}
-			var 
-			timeLimit = timeFinish - timeNow;
-			el.configs.funcTimeHalfwayCallback(el, timeLimit);
-			var 
-			timeRemaining = el.funcGetRemainingTime(timeLimit);
-			el.funcPutTime(timeRemaining);
-			el.setTime = setTimeout(
-				function(){
-					el.funcExecute();
-				}, 
-				el.configs.setTime 
+			let 
+			timeLimit = timeFinish - timeNow, 
+			timeRemaining = funcGetRemainingTime(timeLimit);
+			funcPutTime(timeRemaining);
+			setTimeout(
+				funcExecute, 
+				configs.setTime 
 			);
 		};
 		funcInit();
+		return this;
 	};
 })(jQuery);
 /*----------------------------- /counter -----------------------------*/
