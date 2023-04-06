@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>jQueryプラグイン - カウンター</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="format-detection" content="telephone=no">
+<link rel="stylesheet" href="./css/default.css">
+<!-- plugin -->
+<link rel="stylesheet" href="./plugin/default.css">
+<style>
+</style>
+</head>
+<body>
+	<div class="counter" id="counter"></div>
+	<!-- lib/jquery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	
+	<!-- plugin -->
+	<script src="./plugin/jquery.counter.js"></script>
+	
+	<script>
+(function($){
+	$(document).ready(function(){
+		const 
+		configs = {
+			setTime:300, 
+			finishTime:'2026/3/11 1:59:59', 
+			number:{
+				0:'img/0.png', 
+				1:'img/1.png', 
+				2:'img/2.png', 
+				3:'img/3.png', 
+				4:'img/4.png', 
+				5:'img/5.png', 
+				6:'img/6.png', 
+				7:'img/7.png', 
+				8:'img/8.png', 
+				9:'img/9.png' 
+			}, 
+			counterTemplate:'{hour}<img src="img/coron.png" class="counter_coron">{minute}<img src="img/coron.png" class="counter_coron">{second}<span class="counter_micro_second_parent">{micro_second}</span>' 
+		};
+		$('#counter').counter(configs);
+	});
+})(jQuery);
+	</script>
+</body>
+</html>
